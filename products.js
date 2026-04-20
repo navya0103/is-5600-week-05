@@ -1,49 +1,70 @@
-const fs = require('fs').promises
-const path = require('path')
+const mongoose = require('mongoose')
 
-const productsFile = path.join(__dirname, 'data/full-products.json')
+const Product = mongoose.model('Product', new mongoose.Schema({
+  description: String,
+  alt_description: String,
+  urls: {
+    raw: String,
+    full: String,
+    regular: String,
+    small: String,
+    thumb: String,
+  },
+  links: {
+    self: String,
+    html: String,
+    download: String,
+    download_location: String,
+  },
+  user: {
+    id: String,
+    updated_at: String,
+    username: String,
+    name: String,
+    portfolio_url: String,
+    bio: String,
+    location: String,
+    links: {
+      self: String,
+      html: String,
+      photos: String,
+      likes: String,
+      portfolio: String,
+    },
+    profile_image: {
+      small: String,
+      medium: String,
+      large: String,
+    },
+    instagram_username: String,
+    total_collections: Number,
+    total_likes: Number,
+    total_photos: Number,
+  },
+  tags: [{ title: String }],
+  photo_tags: [{ title: String }],
+}))
 
-/**
- * List products
- * @param {*} options 
- * @returns 
- */
 async function list(options = {}) {
-
-  const { offset = 0, limit = 25, tag } = options;
-
-  const data = await fs.readFile(productsFile)
-  return JSON.parse(data)
-    .filter(product => {
-      if (!tag) {
-        return product
-      }
-
-      return product.tags.find(({ title }) => title == tag)
-    })
-    .slice(offset, offset + limit) // Slice the products
+  const { offset = 0, limit = 25, tag } = options
+  const query = tag ? { tags: { $elemMatch: { title: tag } } } : {}
+  return Product.find(query).skip(Number(offset)).limit(Number(limit))
 }
 
-/**
- * Get a single product
- * @param {string} id
- * @returns {Promise<object>}
- */
 async function get(id) {
-  const products = JSON.parse(await fs.readFile(productsFile))
-
-  // Loop through the products and return the product with the matching id
-  for (let i = 0; i < products.length; i++) {
-    if (products[i].id === id) {
-      return products[i]
-    }
-  }
-
-  // If no product is found, return null
-  return null;
+  return Product.findById(id)
 }
 
-module.exports = {
-  list,
-  get
+async function create(fields) {
+  return new Product(fields).save()
 }
+
+async function edit(id, fields) {
+  return Product.findByIdAndUpdate(id, fields, { new: true })
+}
+
+async function destroy(id) {
+  return Product.findByIdAndDelete(id)
+}
+
+module.exports = { list, get, create, edit, destroy }
