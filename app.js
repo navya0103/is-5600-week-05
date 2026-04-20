@@ -4,7 +4,9 @@ const middleware = require('./middleware')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
 const Product = require('./models/Product');
-
+mongoose.connect('YOUR_CONNECTION_STRING')
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.log(err));
 // Set the port
 const port = process.env.PORT || 3000
 // Boot the app
