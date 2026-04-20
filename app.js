@@ -12,6 +12,36 @@ const port = process.env.PORT || 3000
 // Boot the app
 const app = express()
 // Register the public directory
+const Product = require('./models/Product');
+
+
+// CREATE
+app.post('/products', async (req, res) => {
+    const product = new Product(req.body);
+    const saved = await product.save();
+    res.json(saved);
+});
+
+
+// READ
+app.get('/products', async (req, res) => {
+    const products = await Product.find();
+    res.json(products);
+});
+
+
+// UPDATE
+app.put('/products/:id', async (req, res) => {
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+});
+
+
+// DELETE
+app.delete('/products/:id', async (req, res) => {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+});
 app.use(express.static(__dirname + '/public'));
 // register the routes
 app.use(bodyParser.json())
