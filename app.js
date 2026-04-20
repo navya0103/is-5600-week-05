@@ -8,6 +8,11 @@ const bodyParser = require('body-parser')
 const port = process.env.PORT || 3000
 // Boot the app
 const app = express()
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb+srv://navyasrimulukuntla1453_db_user:<db_password>@cluster0.3kycmkk.mongodb.net/?appName=Cluster0')
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.log(err));
 // Register the public directory
 app.use(express.static(__dirname + '/public'));
 // register the routes
